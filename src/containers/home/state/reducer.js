@@ -1,73 +1,50 @@
-import immutable from 'immutable';
-import {
-  LOGGED, LOGIN_ERROR,
-  LOGIN_REQUEST,
-  LOGIN_SUCCESS
-} from './action';
+import { produce } from 'immer';
+import { LOGGED, LOGIN_ERROR, LOGIN_REQUEST, LOGIN_SUCCESS } from './action';
 
-export const initialState = {
+const init = () => ({
+  data: null,
+  isLoading: false,
+  effect: 0,
   isLogged: false,
   error: null,
-};
-
-const init = () => {
-  const initValue = immutable.fromJS({
-    data: undefined,
-    isLoading: undefined,
-    effect: 0,
-  });
-
-  return initValue
-    .set('data', {
-      ...initialState,
-    })
-    .set('isLoading', false)
-    .set('effect', 0);
-};
+});
 
 const homeReducer = (state = init(), action) => {
   switch (action.type) {
     case LOGIN_REQUEST: {
-      return state
-        .set('isLoading', true)
-        .update('data', data => ({
-          ...data,
-          error: null,
-        }));
+      return produce(state, (draft) => {
+        draft.isLoading = true;
+      });
     }
 
     case LOGIN_ERROR: {
       const { response } = action;
-      return state
-        .update('data', data => ({
-          ...data,
-          error: response.message,
-        }))
-        .set('isLoading', false);
+      return produce(state, (draft) => {
+        draft.isLoading = false;
+        draft.data.error = response.message;
+      });
     }
 
     case LOGIN_SUCCESS: {
       const { response } = action;
-      return state
-        .set('isLoading', false)
-        .update('data', data => ({
-          ...data,
-          ...response,
-          isLogged: true,
-          error: null,
-        }));
+      return produce(state, (draft) => {
+        draft.isLoading = false;
+        draft.isLogged = true;
+        draft.data = response;
+      });
     }
 
     case LOGGED: {
-      return state.update('data', data => ({
-        ...data,
-        isLogged: true,
-        error: null,
-      }));
+      return produce(state, (draft) => {
+        draft.isLogged = true;
+        draft.error = null;
+        draft.data = state.data;
+      });
     }
 
-    default:
+    default: {
       return state;
+    }
   }
 };
 

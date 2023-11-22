@@ -1,5 +1,7 @@
-import { $axios } from '../../../utils';
+import { $axios } from '@/utils';
 
-export const login = (email, password) => $axios.post('https://msapi.survivalapp.com/user-activity/account/login', {
-  userEmail: email, password,
-});
+export const login = (email, password) =>
+  $axios.post(`${import.meta.env.VITE_API_BASE}/login`, {
+    userEmail: email,
+    password,
+  });
